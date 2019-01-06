@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema targetNamespace="http://expretio.com/appia/batch/connector/blj"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://expretio.com/appia/batch/connector/blj"
+  xmlns:network="http://expretio.com/appia/batch/reference/network/references"
+  xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:global="http://expretio.com/appia/batch/jaxb"
+  jaxb:version="2.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+  <xs:import namespace="http://expretio.com/appia/batch/jaxb"
+    schemaLocation="http://expretio.com/appia/batch/global.xsd"/>
+
+  <xs:import namespace="http://expretio.com/appia/batch/reference/network/references"
+    schemaLocation="http://expretio.com/appia/batch/network-references_1.0.xsd"/>
+
+  <xs:annotation>
+    <xs:documentation>
+      aka BarredLimitedJourney or BLJ
+      Describes additional controls applied to protect a journey's inventory that are not expressed
+      as authorization levels in control-observation.
+      Currently support a way to protect a journey from bookings on certain origin/destination on a
+      journey's calling point OD. Currently only supported by NRS.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="blj-control-observations">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="blj-control-observation" type="bljCcontrolObservationInfo" minOccurs="0"
+          maxOccurs="unbounded"> </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="blj-control-observation" type="bljCcontrolObservationInfo"/>
+
+  <xs:complexType name="bljCcontrolObservationInfo">
+    <xs:sequence>
+      <xs:element name="operating-journey" type="journeyInfo">
+        <xs:annotation>
+          <xs:documentation>The journey for which we have BL
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="limited-journeys" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="limited-journey" type="limitedJourneyInfo" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="timestamp" type="global:fullTimestamp"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="journeyInfo">
+    <xs:sequence>
+      <xs:element name="commercial-operator">
+        <xs:complexType>
+          <xs:attribute name="code" type="global:notEmptyString" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="number" type="global:notEmptyString" use="required"/>
+    <xs:attribute name="departure-date" type="xs:date" use="required"/>
+    <xs:attribute name="accommodation-category" type="xs:short" use="required"/>
+  </xs:complexType>
+
+    <!-- Copied/Inspired from Barred/Limited Journey (todo: consider some common structure..)-->
+
+  <xs:simpleType name="recordTypeInfo">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="A" />
+      <xs:enumeration value="D" />
+      <xs:enumeration value="I" />
+      <xs:enumeration value="R" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="limitedJourneyInfo">
+    <xs:sequence>
+      <xs:element name="control-classes" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="control-class" type="controlClassInfo" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="origin" type="xs:string" use="optional" />
+    <xs:attribute name="origin-suffix" type="xs:short" use="optional" />
+    <xs:attribute name="destination" type="xs:string" use="optional" />
+    <xs:attribute name="destination-suffix" type="xs:short" use="optional" />
+    <xs:attribute name="barred-journey-limit" type="xs:short" use="required" />
+    <xs:attribute name="recordType" type="recordTypeInfo" use="optional" />
+    <xs:attribute name="BLJourneyID" type="xs:short" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="controlClassInfo">
+    <xs:attribute name="code" use="required" type="global:notEmptyString"/>
+  </xs:complexType>
+</xs:schema>

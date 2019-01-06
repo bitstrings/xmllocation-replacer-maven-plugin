@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE catalog PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN" "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
+
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+    <public publicId="http://expretio.com/appia/batch/global.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/global.xsd" />
+    <system systemId="http://expretio.com/appia/batch/global.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/global.xsd" />
+
+    <public publicId="http://expretio.com/appia/batch/network-references_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/network/network-references_1.0.xsd" />
+    <system systemId="http://expretio.com/appia/batch/network-references_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/network/network-references_1.0.xsd" />
+
+    <public publicId="http://expretio.com/appia/batch/commercial-references_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/commercial/commercial-references_1.0.xsd" />
+    <system systemId="http://expretio.com/appia/batch/commercial-references_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/commercial/commercial-references_1.0.xsd" />
+
+    <public publicId="http://expretio.com/appia/batch/calibration_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/demand/calibration_1.0.xsd" />
+    <system systemId="http://expretio.com/appia/batch/calibration_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/demand/calibration_1.0.xsd" />
+
+    <public publicId="http://expretio.com/appia/batch/substitution-graph_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/demand/substitution-graph_1.0.xsd" />
+    <system systemId="http://expretio.com/appia/batch/substitution-graph_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/demand/substitution-graph_1.0.xsd" />
+
+    <public publicId="http://expretio.com/appia/batch/alternative-mapping_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/demand/alternative-mapping_1.0.xsd" />
+    <system systemId="http://expretio.com/appia/batch/alternative-mapping_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/demand/alternative-mapping_1.0.xsd" />
+
+    <public publicId="http://expretio.com/appia/batch/demandModel_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/demand/demand-model_1.0.xsd" />
+    <system systemId="http://expretio.com/appia/batch/demandModel_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/demand/demand-model_1.0.xsd" />
+
+    <public publicId="http://expretio.com/appia/batch/demandProfileSuite_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/demand/demand-profile-suite_1.0.xsd" />
+    <system systemId="http://expretio.com/appia/batch/demandProfileSuite_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/demand/demand-profile-suite_1.0.xsd" />
+
+    <public publicId="http://expretio.com/appia/batch/inventory-configuration_1.1.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/control/inventory-configuration_1.1.xsd" />
+    <system systemId="http://expretio.com/appia/batch/inventory-configuration_1.1.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/control/inventory-configuration_1.1.xsd" />
+
+    <public publicId="http://expretio.com/appia/batch/journey-protection-observation_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/control/journey-protection-observation_1.0.xsd" />
+    <system systemId="http://expretio.com/appia/batch/journey-protection-observation_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/reference/shared/control/journey-protection-observation_1.0.xsd" />
+
+    <public publicId="http://expretio.com/appia/batch/inventory-control_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/output/control/inventory-control_1.0.xsd" />
+    <system systemId="http://expretio.com/appia/batch/inventory-control_1.0.xsd"
+            uri="${catalog.uri.prefix}com/expretio/appia/batch/output/control/inventory-control_1.0.xsd" />
+</catalog>

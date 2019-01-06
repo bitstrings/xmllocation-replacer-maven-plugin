@@ -1,0 +1,12 @@
+target
+.classpath
+.project
+.settings
+*.iml
+*.ipr
+*.iws
+.idea
+**/bin
+.factorypath
+test-output
+.~lock.*
