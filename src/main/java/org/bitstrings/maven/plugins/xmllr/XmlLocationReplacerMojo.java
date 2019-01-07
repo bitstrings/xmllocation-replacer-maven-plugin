@@ -113,7 +113,6 @@ public class XmlLocationReplacerMojo
                     resource.setDirectory( catalogFile.getParent() );
                     resource.setFiltering( true );
                     resource.addInclude( catalogFile.getName() );
-    //                resource.setTargetPath( catalogFilteredFile.getParentFile().getAbsolutePath() );
 
                     MavenResourcesExecution resourcesExecution =
                         new MavenResourcesExecution(
