@@ -7,7 +7,6 @@ import static org.apache.commons.collections4.IteratorUtils.chainedIterator;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.GENERATE_RESOURCES;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -52,10 +51,7 @@ public class XmlLocationReplacerMojo
     @Parameter( required = true )
     protected File catalogFile;
 
-    @Parameter( defaultValue = "false", required = false )
-    protected Boolean copyCatalogFile;
-
-    @Parameter( defaultValue = "${project.build.directory}", required = false )
+    @Parameter( defaultValue = "${project.build.directory}/xmllr", required = false )
     protected String outputCatalogDirectory;
 
     @Parameter( defaultValue = "${project.build.filters}", readonly = true )
@@ -67,7 +63,7 @@ public class XmlLocationReplacerMojo
     @Parameter( defaultValue = "false" )
     protected Boolean catalogProjectFilters;
 
-    @Parameter( required = true, readonly = true )
+    @Parameter( required = false, readonly = true )
     protected List<FileSet> xmlFileSets;
 
     @Parameter( defaultValue = "${project.build.directory}", required = false )
@@ -79,17 +75,9 @@ public class XmlLocationReplacerMojo
     {
         File outputCatalogDirectoryFile = null;
 
-        File catalogFilteredFile = null;
-
         try
         {
             boolean catalogChanged = buildContext.hasDelta( catalogFile );
-
-            catalogFilteredFile = Files.createTempDirectory( "xmllr-" ).toFile();
-
-            catalogFilteredFile.mkdirs();
-
-            catalogFilteredFile = new File( catalogFilteredFile, catalogFile.getName() );
 
             boolean catalogFiltersChanged = false;
 
@@ -105,6 +93,17 @@ public class XmlLocationReplacerMojo
                 catalogFiltersCombined.add( makeItAbsolute( catalogFilter, null ).getAbsolutePath() );
             }
 
+            outputCatalogDirectoryFile =
+                makeItAbsolute(
+                    new File( outputCatalogDirectory ),
+                    new File( mavenProject.getBuild().getDirectory() ) );
+
+            outputCatalogDirectoryFile.mkdirs();
+
+            outputCatalogDirectoryFile = new File( outputCatalogDirectoryFile, catalogFile.getName() );
+
+
+
             if ( catalogFiltering )
             {
                 if ( catalogChanged || catalogFiltersChanged )
@@ -117,7 +116,7 @@ public class XmlLocationReplacerMojo
                     MavenResourcesExecution resourcesExecution =
                         new MavenResourcesExecution(
                             singletonList( resource ),
-                            catalogFilteredFile.getParentFile(),
+                            outputCatalogDirectoryFile.getParentFile(),
                             mavenProject,
                             "UTF-8",
                             catalogFiltersCombined,
@@ -133,97 +132,73 @@ public class XmlLocationReplacerMojo
                     mavenResourcesFiltering.filterResources( resourcesExecution );
                 }
             }
-
-            if ( catalogChanged )
+            else if ( catalogChanged )
             {
-                if ( copyCatalogFile && ( outputCatalogDirectory != null ) )
-                {
-                    outputCatalogDirectoryFile = new File( outputCatalogDirectory );
-
-                    outputCatalogDirectoryFile =
-                        makeItAbsolute(
-                            outputCatalogDirectoryFile,
-                            new File( mavenProject.getBuild().getDirectory() ) );
-
-                    outputCatalogDirectoryFile.mkdirs();
-
-                    FileUtils.copyFile(
-                        catalogFiltering
-                            ? catalogFilteredFile
-                            : catalogFile,
-                        new File( outputCatalogDirectoryFile, catalogFile.getName() ) );
-                }
+                FileUtils.copyFile( catalogFile, outputCatalogDirectoryFile );
             }
-
-            //if ( catalogFiltering ) throw new Exception ( "" );
 
             CatalogManager catalogManager = new CatalogManager();
             catalogManager.setVerbosity( 0 );
             catalogManager.setAllowOasisXMLCatalogPI( true );
             catalogManager.setIgnoreMissingProperties( true );
             catalogManager.setUseStaticCatalog( false );
-            catalogManager.setCatalogFiles( catalogFilteredFile.toString() );
+            catalogManager.setCatalogFiles( outputCatalogDirectoryFile.toString() );
 
             Catalog catalog = catalogManager.getCatalog();
 
-            for ( FileSet xmlFileSet : xmlFileSets )
+            if ( xmlFileSets != null )
             {
-                File fileSetDirectoryFile = makeItAbsolute( new File( xmlFileSet.getDirectory() ), null );
-
-                xmlFileSet.setDirectory( fileSetDirectoryFile.getAbsolutePath() );
-
-                for ( File file :
-                        FileUtils.getFiles(
-                            fileSetDirectoryFile,
-                            join( ",", xmlFileSet.getIncludes() ),
-                            join( ",", xmlFileSet.getExcludes() ) ) )
+                for ( FileSet xmlFileSet : xmlFileSets )
                 {
-                    if ( !buildContext.hasDelta( file ) && !catalogChanged )
+                    File fileSetDirectoryFile = makeItAbsolute( new File( xmlFileSet.getDirectory() ), null );
+
+                    xmlFileSet.setDirectory( fileSetDirectoryFile.getAbsolutePath() );
+
+                    for ( File file :
+                            FileUtils.getFiles(
+                                fileSetDirectoryFile,
+                                join( ",", xmlFileSet.getIncludes() ),
+                                join( ",", xmlFileSet.getExcludes() ) ) )
                     {
-                        continue;
+                        if ( !buildContext.hasDelta( file ) && !catalogChanged )
+                        {
+                            continue;
+                        }
+
+                        File parentFile =
+                            makeItAbsolute(
+                                new File( outputDirectory, relativize( fileSetDirectoryFile, file.getParentFile() ) ),
+                                new File( mavenProject.getBuild().getDirectory() ) );
+
+                        parentFile.mkdirs();
+
+                        Document doc = Xml.read( file );
+
+                        for (
+                            Iterator<Element> iter =
+                                chainedIterator(
+                                    doc.find( "import" ).elements().iterator(),
+                                    doc.find( "include" ).elements().iterator() ) ;
+                            iter.hasNext() ; )
+                        {
+                            Element elem = iter.next();
+
+                            String currentLocation = elem.attr( "schemaLocation" );
+                            elem.attr( "schemaLocation", catalog.resolvePublic( currentLocation, currentLocation ) );
+                        }
+
+                        File outFile = new File( parentFile, file.getName() );
+
+                        FileUtils.fileWrite( outFile, doc.getEncoding(), doc.toXML() );
+
+                        buildContext.refresh( outFile );
                     }
-
-                    File parentFile =
-                        makeItAbsolute(
-                            new File( outputDirectory, relativize( fileSetDirectoryFile, file.getParentFile() ) ),
-                            new File( mavenProject.getBuild().getDirectory() ) );
-
-                    parentFile.mkdirs();
-
-                    Document doc = Xml.read( file );
-
-                    for (
-                        Iterator<Element> iter =
-                            chainedIterator(
-                                doc.find( "import" ).elements().iterator(),
-                                doc.find( "include" ).elements().iterator() ) ;
-                        iter.hasNext() ; )
-                    {
-                        Element elem = iter.next();
-
-                        String currentLocation = elem.attr( "schemaLocation" );
-                        elem.attr( "schemaLocation", catalog.resolvePublic( currentLocation, currentLocation ) );
-                    }
-
-                    File outFile = new File( parentFile, file.getName() );
-
-                    FileUtils.fileWrite( outFile, doc.getEncoding(), doc.toXML() );
-
-                    buildContext.refresh( outFile );
                 }
             }
         }
         catch ( Exception e )
         {
             throw new MojoExecutionException( e.getLocalizedMessage(), e );
-        }
-        finally
-        {
-            if ( catalogFilteredFile != null )
-            {
-                catalogFilteredFile.delete();
-                catalogFilteredFile.getParentFile().delete();
-            }
         }
     }
 
