@@ -171,6 +171,11 @@
             <version>4.2</version>
         </dependency>
         <dependency>
+            <groupId>xml-resolver</groupId>
+            <artifactId>xml-resolver</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
             <groupId>org.eaxy</groupId>
             <artifactId>eaxy</artifactId>
             <version>0.2.1</version>
@@ -181,9 +186,9 @@
             <version>3.0.0</version>
         </dependency>
         <dependency>
-            <groupId>xml-resolver</groupId>
-            <artifactId>xml-resolver</artifactId>
-            <version>1.2</version>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-filtering</artifactId>
+            <version>3.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.sonatype.plexus</groupId>
