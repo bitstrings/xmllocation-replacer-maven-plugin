@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.FileSet;
@@ -54,7 +55,7 @@ public class XmlLocationReplacerMojo
     @Parameter( defaultValue = "${project.build.directory}/xmllr", required = false )
     protected String outputCatalogDirectory;
 
-    @Parameter( defaultValue = "${project.build.filters}", readonly = true )
+    @Parameter( defaultValue = "${project.build.filters}" )
     protected List<File> catalogFilters;
 
     @Parameter( defaultValue = "false" )
@@ -63,7 +64,10 @@ public class XmlLocationReplacerMojo
     @Parameter( defaultValue = "false" )
     protected Boolean catalogProjectFilters;
 
-    @Parameter( required = false, readonly = true )
+    @Parameter
+    protected List<FilterProperty> filterProperties;
+
+    @Parameter( required = false )
     protected List<FileSet> xmlFileSets;
 
     @Parameter( defaultValue = "${project.build.directory}", required = false )
@@ -102,12 +106,27 @@ public class XmlLocationReplacerMojo
 
             outputCatalogDirectoryFile = new File( outputCatalogDirectoryFile, catalogFile.getName() );
 
-
-
             if ( catalogFiltering )
             {
                 if ( catalogChanged || catalogFiltersChanged )
                 {
+                    Properties additionalProperties = new Properties();
+
+                    if ( filterProperties != null )
+                    {
+                        for ( FilterProperty property : filterProperties )
+                        {
+                            filterPropertiesValidateAndDefaults( property );
+
+                            additionalProperties.setProperty(
+                                property.getName(),
+                                property.getPathValueToUri()
+                                    ? new File( property.getValue() ).toURI().toString()
+                                    : property.getValue()
+                            );
+                        }
+                    }
+
                     Resource resource = new Resource();
                     resource.setDirectory( catalogFile.getParent() );
                     resource.setFiltering( true );
@@ -128,6 +147,7 @@ public class XmlLocationReplacerMojo
                     resourcesExecution.setOverwrite( true );
                     resourcesExecution.setIncludeEmptyDirs( false );
                     resourcesExecution.setSupportMultiLineFiltering( false );
+                    resourcesExecution.setAdditionalProperties( additionalProperties );
 
                     mavenResourcesFiltering.filterResources( resourcesExecution );
                 }
@@ -223,5 +243,19 @@ public class XmlLocationReplacerMojo
         }
 
         return file;
+    }
+
+    protected void filterPropertiesValidateAndDefaults( FilterProperty filterProperty )
+        throws MojoExecutionException
+    {
+        if ( filterProperty.getName() == null )
+        {
+            throw new MojoExecutionException( "Property name must be set." );
+        }
+
+        if ( filterProperty.getPathValueToUri() == null )
+        {
+            filterProperty.setPathValueToUri( false );
+        }
     }
 }
