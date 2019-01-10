@@ -5,6 +5,7 @@ public class FilterProperty
     protected String name;
     protected String value;
     protected Boolean pathValueToUri;
+    protected Boolean valueIsDirectory;
 
     public String getName()
     {
@@ -34,5 +35,15 @@ public class FilterProperty
     public void setPathValueToUri( Boolean pathValueToUri )
     {
         this.pathValueToUri = pathValueToUri;
+    }
+
+    public Boolean getValueIsDirectory()
+    {
+        return valueIsDirectory;
+    }
+
+    public void setValueIsDirectory( Boolean valueIsDirectory )
+    {
+        this.valueIsDirectory = valueIsDirectory;
     }
 }

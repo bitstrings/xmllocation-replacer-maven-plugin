@@ -118,12 +118,23 @@ public class XmlLocationReplacerMojo
                         {
                             filterPropertiesValidateAndDefaults( property );
 
-                            additionalProperties.setProperty(
-                                property.getName(),
-                                property.getPathValueToUri()
-                                    ? new File( property.getValue() ).toURI().toString()
-                                    : property.getValue()
-                            );
+                            String value;
+
+                            if ( property.getPathValueToUri() )
+                            {
+                                value = new File( property.getValue() ).toURI().toString();
+
+                                if ( property.getValueIsDirectory() && !value.endsWith( "/" ) )
+                                {
+                                    value += "/";
+                                }
+                            }
+                            else
+                            {
+                                value = property.getValue();
+                            }
+
+                            additionalProperties.setProperty( property.getName(), value );
                         }
                     }
 
