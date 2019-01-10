@@ -273,5 +273,10 @@ public class XmlLocationReplacerMojo
         {
             filterProperty.setPathValueToUri( false );
         }
+
+        if ( filterProperty.getValueIsDirectory() == null )
+        {
+            filterProperty.setValueIsDirectory( false );
+        }
     }
 }
