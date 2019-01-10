@@ -157,6 +157,11 @@ public class XmlLocationReplacerMojo
                 FileUtils.copyFile( catalogFile, outputCatalogDirectoryFile );
             }
 
+            if ( catalogChanged )
+            {
+                buildContext.refresh( outputCatalogDirectoryFile );
+            }
+
             CatalogManager catalogManager = new CatalogManager();
             catalogManager.setVerbosity( 0 );
             catalogManager.setAllowOasisXMLCatalogPI( true );
